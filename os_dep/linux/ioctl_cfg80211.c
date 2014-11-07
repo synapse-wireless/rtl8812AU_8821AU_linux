@@ -4552,9 +4552,13 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 #else
 	struct net_device *ndev,
 #endif
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,14,0))
+	struct cfg80211_mgmt_tx_params *params,
+#else
 	struct ieee80211_channel *chan,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)) || defined(COMPAT_KERNEL_RELEASE)
 	bool offchan,
+#endif
 #endif
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0))
 	enum nl80211_channel_type channel_type,
@@ -4562,6 +4566,7 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 	bool channel_type_valid,
 	#endif
 #endif
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,14,0))
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)) || defined(COMPAT_KERNEL_RELEASE)
 	unsigned int wait,
 #endif
@@ -4572,6 +4577,7 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0))
 	bool dont_wait_for_ack,
 #endif
+#endif
 	u64 *cookie)
 {
 	_adapter *padapter = (_adapter *)wiphy_to_adapter(wiphy);
@@ -4581,6 +4587,11 @@ static int cfg80211_rtw_mgmt_tx(struct wiphy *wiphy,
 	u32 dump_limit = RTW_MAX_MGMT_TX_CNT;
 	u32 dump_cnt = 0;
 	bool ack = _TRUE;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,14,0))
+	struct ieee80211_channel *chan = params->chan;
+	const u8 *buf = params->buf;
+	size_t len = params->len;
+#endif
 	u8 tx_ch = (u8)ieee80211_frequency_to_channel(chan->center_freq);
 	u8 category, action;
 	int type = (-1);
